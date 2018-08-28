@@ -11,3 +11,8 @@
 
 <h2>Acesso</h2>
 URL para acesso ao projeto: http://localhost/comicsnews/public/index
+
+<h2>Instalação</h2>
+<br>
+   
+Instalar composer  e executar o comando "composer install" na raiz projeto.<br>
