@@ -8,3 +8,6 @@
       * resources/views/noticias<br>
       * resources/views/layouts<br>
       * routes/
+
+<h2>Acesso</h2>
+URL para acesso ao projeto: http://localhost/comicsnews/public/index
