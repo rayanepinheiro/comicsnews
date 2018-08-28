@@ -56,7 +56,13 @@ a{
         </div>
       </div>
       <div class="col-md-4"></div>
-      <p></p>
     @endforelse
+    <div class="col-md-4"></div>
+    <div class="col-md-4 msg">
+      <div class="button">
+        <a  href="{{url('cadastrar')}}" class="btn btn-success">Postar novas notícias</a>
+      </div>
+    </div>
+    <div class="col-md-4"></div>
   </div>
 </main>
