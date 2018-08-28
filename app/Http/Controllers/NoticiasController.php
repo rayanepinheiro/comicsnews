@@ -3,82 +3,78 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Classes\DBQuery;
+use App\Http\Controllers\NoticiasController;
 
 class NoticiasController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        //
+      $postagens = DBQuery::getPostagens();
+      // return $postagens;
+      return view('noticias.index')->with('postagens', $postagens);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function detalhes(Request $request)
     {
-        //
+      $id = $request->id;
+
+      $post = DBQuery::getPost($id);
+      $post = $post !== [] ? $post[0] : null;
+      // return $post;
+      return view('noticias.detalhes')->with('post', $post);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function cadastrar()
     {
-        //
+      return view('noticias.form-cadastro');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function validar(Request $request)
     {
-        //
-    }
+      $messages = [
+        'autor.required' => 'Informe o autor.',
+        'titulo.required' => 'Informe o título.',
+        'descricao.required' => 'Informe a descrição.',
+        'file.required' => 'Anexe uma foto.',
+        'file.mimes' => 'É permitido apenas arquivos jpg, jpeg e png.',
+        'file.max' => 'É permitido apenas imagens com tamanho 2MB.',
+      ];
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
+      $rules = [
+        'autor' => 'required',
+        'titulo' => 'required',
+        'descricao' => 'required',
+        'file' => 'required|mimes:jpg,jpeg,png|max:2000',
+      ];
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
+      $validator = Validator::make($request->all(), $rules, $messages);
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
+      if ($validator->fails()) {
+        return redirect('cadastrar')
+        ->WithErrors($validator)
+        ->WithInput();
+      }
+
+      $autor = $request->input('autor');
+      $titulo = $request->input('titulo');
+      $descricao = $request->input('descricao');
+      $imagem = $request->file('file');
+
+      // TRATAMENTO IMAGEM
+      $destino = "img/foto-post/";
+      $extension = $imagem->getClientOriginalExtension();
+      $filename = $imagem->getClientOriginalName();
+      $filename = str_replace(" ", "", $filename);
+      $data_file = date('d-m-Y_H_i_s');
+      $data_file = $data_file."-".$filename;
+      $imagem->move($destino, $filename);
+      $url_imagem = $destino.$filename;
+
+      // INSERCAO DAS INFORMACOES DO FORMULARIO NA TABELA NOTICIA
+      DBQuery::setPostagem($titulo, $descricao, $url_imagem, $autor);
+
+      return view('noticias.aviso');
     }
 }
